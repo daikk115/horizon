@@ -85,6 +85,12 @@ class SetInstanceDetailsAction(workflows.Action):
     name = forms.CharField(label=_("Instance Name"),
                            max_length=255)
 
+    user_name = forms.CharField(label=_("User Name"),
+                           max_length=255)
+
+    password = forms.CharField(label=_("Password"),
+                                max_length=255)
+
     flavor = forms.ChoiceField(label=_("Flavor"),
                                help_text=_("Size of image to launch."))
 
@@ -503,7 +509,7 @@ class SetInstanceDetailsAction(workflows.Action):
 class SetInstanceDetails(workflows.Step):
     action_class = SetInstanceDetailsAction
     depends_on = ("project_id", "user_id")
-    contributes = ("source_type", "source_id",
+    contributes = ("source_type", "source_id", "user_name", "password"
                    "availability_zone", "name", "count", "flavor",
                    "device_name",  # Can be None for an image.
                    "vol_delete_on_instance_delete")

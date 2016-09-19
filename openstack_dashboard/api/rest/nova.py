@@ -226,14 +226,46 @@ class Servers(generic.View):
 
         This returns the new server object on success.
         """
+        def add_user(username, password):
+            import crypt as cr
+            password = cr.crypt(password, '$6$' + 'saltsalt')
+            template = """
+            #cloud-config
+            users:
+              - name: {}
+                gecos: Default
+                shell: /bin/bash
+                lock-passwd: false
+                sudo: ALL=(ALL) ALL
+                passwd: {}
+                ssh-authorized-keys:
+                  - {}
+            """.format(
+                username,
+                password,
+                'tmp'
+            )
+
+            return template
+
         try:
+            if request.DATA.get('user_name', None) :
+                user_name = request.DATA['user_name']
+                if request.DATA.get('password', None) :
+                    password = request.DATA['password']
+                else:
+                    password = ''
+                user_data = add_user(user_name, password)
+            else:
+                user_data = request.DATA['user_data']
+
             args = (
                 request,
                 request.DATA['name'],
                 request.DATA['source_id'],
                 request.DATA['flavor_id'],
                 request.DATA['key_name'],
-                request.DATA['user_data'],
+                user_data,
                 request.DATA['security_groups'],
             )
         except KeyError as e:
