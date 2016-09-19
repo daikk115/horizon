@@ -226,7 +226,7 @@ class Servers(generic.View):
 
         This returns the new server object on success.
         """
-        def add_user(username, password):
+        def add_user(username, password, keypair):
             import crypt as cr
             password = cr.crypt(password, '$6$' + 'saltsalt')
             template = """
@@ -243,19 +243,26 @@ class Servers(generic.View):
             """.format(
                 username,
                 password,
-                'tmp'
+                keypair._info['public_key']
             )
 
             return template
 
         try:
-            if request.DATA.get('user_name', None) :
-                user_name = request.DATA['user_name']
+            user_name = request.DATA.get('user_name', '')
+            if len(user_name) > 0 :
                 if request.DATA.get('password', None) :
                     password = request.DATA['password']
                 else:
                     password = ''
-                user_data = add_user(user_name, password)
+                key_name = request.DATA.get('key_name', None)
+                if key_name :
+                    keypair = api.nova.keypair_get(self.request,
+                                                   key_name)
+                else:
+                    keypair = ''
+
+                user_data = add_user(user_name, password, keypair)
             else:
                 user_data = request.DATA['user_data']
 
