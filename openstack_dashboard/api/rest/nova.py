@@ -243,7 +243,7 @@ class Servers(generic.View):
             """.format(
                 username,
                 password,
-                keypair._info['public_key']
+                keypair
             )
 
             return template
@@ -258,7 +258,7 @@ class Servers(generic.View):
                 key_name = request.DATA.get('key_name', None)
                 if key_name :
                     keypair = api.nova.keypair_get(self.request,
-                                                   key_name)
+                                                   key_name)._info['public_key']
                 else:
                     keypair = ''
 
